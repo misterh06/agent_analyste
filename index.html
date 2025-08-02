@@ -309,8 +309,29 @@
             background-color: var(--bg-primary);
             border-radius: 0.75rem;
             padding: 1.5rem;
-            min-height: 200px;
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
             position: relative;
+        }
+
+        /* Personnaliser la barre de défilement */
+        .result-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .result-content::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 4px;
+        }
+
+        .result-content::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .result-content::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
         }
 
         .result-panel {
@@ -336,17 +357,22 @@
 
         .summary-content h3 {
             color: var(--primary-color);
-            margin-bottom: 1rem;
+            margin: 1.5rem 0 1rem;
             font-size: 1.5rem;
+        }
+
+        .summary-content h4 {
+            color: var(--primary-color);
+            margin: 1.25rem 0 0.75rem;
+            font-size: 1.25rem;
         }
 
         .summary-content p {
             margin-bottom: 1rem;
         }
 
-        .summary-content ul {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
+        .summary-content ul, .summary-content ol {
+            margin: 1rem 0 1rem 1.5rem;
         }
 
         .summary-content li {
@@ -554,6 +580,10 @@
                 border-bottom: 1px solid var(--border-color);
                 background-color: var(--bg-primary);
             }
+
+            .result-content {
+                max-height: 400px;
+            }
         }
     </style>
 </head>
@@ -679,7 +709,7 @@
                         </div>
                         
                         <div id="detailedPanel" class="result-panel">
-                            <div id="detailedData" class="result-data"></div>
+                            <div id="detailedData" class="summary-content"></div>
                         </div>
                     </div>
                 </div>
@@ -849,6 +879,11 @@
                 } else if (tabName === 'detailed') {
                     detailedPanel.classList.add('active');
                 }
+                
+                // Ajuster la hauteur après le changement d'onglet
+                setTimeout(() => {
+                    adjustContentHeight();
+                }, 50);
             });
         });
 
@@ -910,6 +945,24 @@
                 analyzeStock(symbol, 'manual');
             });
         });
+
+        // Fonction pour ajuster la hauteur du contenu
+        function adjustContentHeight() {
+            const resultContent = document.querySelector('.result-content');
+            const summaryPanel = document.getElementById('summaryPanel');
+            const detailedPanel = document.getElementById('detailedPanel');
+            
+            // Réinitialiser la hauteur
+            resultContent.style.maxHeight = 'none';
+            
+            // Calculer la hauteur nécessaire
+            const activePanel = summaryPanel.classList.contains('active') ? summaryPanel : detailedPanel;
+            const contentHeight = activePanel.scrollHeight;
+            
+            // Définir une hauteur maximale raisonnable
+            const maxHeight = Math.min(contentHeight + 50, window.innerHeight * 0.7);
+            resultContent.style.maxHeight = maxHeight + 'px';
+        }
 
         // Fonction principale d'analyse
         async function analyzeStock(symbol, stockType) {
@@ -1017,7 +1070,7 @@
                 processedData = data;
             }
             
-            // Utiliser le champ "text" comme résumé et "detailed" comme analyse détaillée
+            // Utiliser les champs "text" et "detailed"
             const summary = processedData.text || "Résumé non disponible";
             const detailed = processedData.detailed || "Analyse non disponible";
             
@@ -1047,6 +1100,11 @@
             // Formater les contenus
             summaryData.innerHTML = formatSummary(summary, symbol, stockName, stockCountry, indicator);
             detailedData.innerHTML = formatDetailed(detailed, symbol, stockName, stockCountry, indicator);
+            
+            // Ajuster la hauteur du contenu
+            setTimeout(() => {
+                adjustContentHeight();
+            }, 100);
             
             // Réinitialiser les boutons
             analyzeBtn.disabled = false;
@@ -1104,16 +1162,38 @@
 
         // Fonction pour formater le markdown simple
         function formatMarkdown(text) {
+            if (!text) return '';
+            
             // Convertir les **gras** en <strong>
             text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             
             // Convertir les sauts de ligne en <br>
             text = text.replace(/\n/g, '<br>');
             
-            // Convertir les listes
-            text = text.replace(/<br>\* /g, '</li><li>');
-            text = text.replace(/^<br>\* /, '<ul><li>');
-            text = text.replace(/<li>.*$/, '</li></ul>');
+            // Convertir les listes numérotées
+            text = text.replace(/<br>(\d+)\.\s+/g, '</li><li><strong>$1.</strong> ');
+            
+            // Convertir les listes à puces
+            text = text.replace(/<br>\*\s+/g, '</li><li>');
+            
+            // Gérer le début des listes
+            text = text.replace(/^<br>(\d+)\.\s+/, '<ol><li><strong>$1.</strong> ');
+            text = text.replace(/^<br>\*\s+/, '<ul><li>');
+            
+            // Gérer la fin des listes
+            text = text.replace(/<li>.*$/, '</li></ol></ul>');
+            
+            // Nettoyer les balises restantes
+            text = text.replace(/<\/li><\/ol><\/ul>/g, '</li></ol>');
+            text = text.replace(/<\/li><\/ul><\/ol>/g, '</li></ul>');
+            
+            // Ajouter des balises pour les titres
+            text = text.replace(/<br>###\s+(.*?)<br>/g, '<h3>$1</h3>');
+            text = text.replace(/<br>####\s+(.*?)<br>/g, '<h4>$1</h4>');
+            
+            // Ajouter des paragraphes pour les sections de texte
+            text = text.replace(/<br><br>/g, '</p><p>');
+            text = '<p>' + text + '</p>';
             
             return text;
         }
@@ -1208,6 +1288,13 @@
         // Focus automatique sur l'input au chargement
         window.addEventListener('load', () => {
             symbolInput.focus();
+        });
+
+        // Ajuster la hauteur lors du redimensionnement de la fenêtre
+        window.addEventListener('resize', () => {
+            if (resultSection.classList.contains('show')) {
+                adjustContentHeight();
+            }
         });
     </script>
 </body>
