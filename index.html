@@ -1009,6 +1009,18 @@
                 <span>Analyse terminée</span>
             `;
             
+            // Extraire les données du tableau
+            let processedData = {};
+            if (Array.isArray(data) && data.length > 0) {
+                processedData = data[0];
+            } else if (typeof data === 'object') {
+                processedData = data;
+            }
+            
+            // Utiliser le champ "text" comme résumé et "detailed" comme analyse détaillée
+            const summary = processedData.text || "Résumé non disponible";
+            const detailed = processedData.detailed || "Analyse non disponible";
+            
             // Trouver les informations de l'action
             let stockInfo = null;
             let indicator = '';
@@ -1032,29 +1044,9 @@
             const stockName = stockInfo ? stockInfo.name : 'Action inconnue';
             const stockCountry = stockInfo ? stockInfo.country : 'Pays inconnu';
             
-            // Vérifier si la réponse contient à la fois un résumé et une analyse détaillée
-            let summaryContent = '';
-            let detailedContent = '';
-            
-            if (data && typeof data === 'object') {
-                // Si la réponse est un objet avec les champs summary et detailed
-                if (data.summary && data.detailed) {
-                    summaryContent = formatSummary(data.summary, symbol, stockName, stockCountry, indicator);
-                    detailedContent = formatDetailed(data.detailed, symbol, stockName, stockCountry, indicator);
-                } else {
-                    // Si la réponse est un objet mais sans les champs attendus, on l'affiche dans le détail
-                    detailedContent = formatDetailed(JSON.stringify(data, null, 2), symbol, stockName, stockCountry, indicator);
-                    summaryContent = generateSummaryFromDetailed(data, symbol, stockName, stockCountry, indicator);
-                }
-            } else {
-                // Si la réponse est du texte brut, on l'affiche dans le détail
-                detailedContent = formatDetailed(data, symbol, stockName, stockCountry, indicator);
-                summaryContent = generateSummaryFromDetailed(data, symbol, stockName, stockCountry, indicator);
-            }
-            
-            // Afficher les contenus
-            summaryData.innerHTML = summaryContent;
-            detailedData.innerHTML = detailedContent;
+            // Formater les contenus
+            summaryData.innerHTML = formatSummary(summary, symbol, stockName, stockCountry, indicator);
+            detailedData.innerHTML = formatDetailed(detailed, symbol, stockName, stockCountry, indicator);
             
             // Réinitialiser les boutons
             analyzeBtn.disabled = false;
@@ -1087,7 +1079,7 @@
                     </div>
                 </div>
                 <div class="summary-content">
-                    ${summary}
+                    ${formatMarkdown(summary)}
                 </div>
             `;
         }
@@ -1104,57 +1096,26 @@
                         ${indicator}
                     </div>
                 </div>
-                <pre style="background-color: #1e293b; color: #e2e8f0; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto;"><code>${escapeHtml(detailed)}</code></pre>
+                <div class="summary-content">
+                    ${formatMarkdown(detailed)}
+                </div>
             `;
         }
 
-        // Fonction pour générer un résumé à partir de l'analyse détaillée (si le webhook ne renvoie pas de résumé)
-        function generateSummaryFromDetailed(data, symbol, stockName, stockCountry, indicator) {
-            // Extraire les informations clés de l'analyse détaillée
-            let summary = '<h3>Résumé de l\'analyse</h3>';
+        // Fonction pour formater le markdown simple
+        function formatMarkdown(text) {
+            // Convertir les **gras** en <strong>
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             
-            if (typeof data === 'string') {
-                // Si c'est du texte, on essaie d'extraire les premières lignes
-                const lines = data.split('\n').filter(line => line.trim());
-                const firstLines = lines.slice(0, 5).join('\n');
-                
-                summary += `
-                    <div class="summary-highlight">
-                        <strong>Points clés:</strong>
-                        <p>${firstLines}</p>
-                    </div>
-                `;
-            } else if (typeof data === 'object') {
-                // Si c'est un objet, on essaie d'extraire les champs importants
-                const importantFields = ['recommendation', 'rating', 'price', 'target', 'outlook', 'trend'];
-                const foundFields = [];
-                
-                for (const field of importantFields) {
-                    if (data[field] !== undefined) {
-                        foundFields.push(`<li><strong>${field}:</strong> ${data[field]}</li>`);
-                    }
-                }
-                
-                if (foundFields.length > 0) {
-                    summary += `
-                        <div class="summary-highlight">
-                            <strong>Indicateurs clés:</strong>
-                            <ul>
-                                ${foundFields.join('')}
-                            </ul>
-                        </div>
-                    `;
-                }
-            }
+            // Convertir les sauts de ligne en <br>
+            text = text.replace(/\n/g, '<br>');
             
-            summary += `
-                <p><strong>Entreprise:</strong> ${stockName} (${symbol})</p>
-                <p><strong>Pays:</strong> ${stockCountry}</p>
-                <p><strong>Statut PEA:</strong> ${indicator.includes('Éligible PEA') ? 'Éligible' : 'Non éligible'}</p>
-                <p><em>Ce résumé a été généré automatiquement à partir de l'analyse détaillée.</em></p>
-            `;
+            // Convertir les listes
+            text = text.replace(/<br>\* /g, '</li><li>');
+            text = text.replace(/^<br>\* /, '<ul><li>');
+            text = text.replace(/<li>.*$/, '</li></ul>');
             
-            return summary;
+            return text;
         }
 
         // Fonction pour afficher les erreurs
