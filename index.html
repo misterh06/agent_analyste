@@ -18,6 +18,8 @@
             --success-color: #10b981;
             --error-color: #ef4444;
             --warning-color: #f59e0b;
+            --pea-color: #059669;
+            --foreign-color: #7c3aed;
             --bg-primary: #f8fafc;
             --bg-secondary: #ffffff;
             --text-primary: #1e293b;
@@ -122,7 +124,14 @@
         .input-wrapper {
             position: relative;
             display: flex;
+            flex-direction: column;
             gap: 0.75rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
         }
 
         .symbol-input {
@@ -145,6 +154,28 @@
             border-color: var(--error-color);
         }
 
+        .stock-select {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .stock-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
         .analyze-btn {
             padding: 0.875rem 2rem;
             background-color: var(--primary-color);
@@ -159,6 +190,7 @@
             align-items: center;
             gap: 0.5rem;
             white-space: nowrap;
+            justify-content: center;
         }
 
         .analyze-btn:hover:not(:disabled) {
@@ -242,6 +274,37 @@
             color: var(--primary-color);
         }
 
+        .result-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .result-tab {
+            padding: 0.75rem 1.5rem;
+            background-color: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .result-tab:hover {
+            color: var(--primary-color);
+        }
+
         .result-content {
             background-color: var(--bg-primary);
             border-radius: 0.75rem;
@@ -250,11 +313,52 @@
             position: relative;
         }
 
+        .result-panel {
+            display: none;
+        }
+
+        .result-panel.active {
+            display: block;
+        }
+
         .result-data {
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
             word-wrap: break-word;
             line-height: 1.8;
+        }
+
+        .summary-content {
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .summary-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .summary-content p {
+            margin-bottom: 1rem;
+        }
+
+        .summary-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-highlight {
+            background-color: rgba(37, 99, 235, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--primary-color);
+            margin: 1rem 0;
         }
 
         .error-message {
@@ -323,6 +427,81 @@
             border-color: var(--primary-color);
         }
 
+        .input-methods {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .method-tab {
+            padding: 0.5rem 1rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: none;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .method-tab.active {
+            background-color: var(--bg-secondary);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .method-tab.pea.active {
+            border-color: var(--pea-color);
+            color: var(--pea-color);
+        }
+
+        .method-tab.foreign.active {
+            border-color: var(--foreign-color);
+            color: var(--foreign-color);
+        }
+
+        .method-tab i {
+            font-size: 1rem;
+        }
+
+        .input-content {
+            border: 2px solid var(--border-color);
+            border-radius: 0 0 0.5rem 0.5rem;
+            padding: 1rem;
+            background-color: var(--bg-secondary);
+        }
+
+        .pea-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.125rem 0.5rem;
+            background-color: rgba(5, 150, 105, 0.1);
+            color: var(--pea-color);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .foreign-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.125rem 0.5rem;
+            background-color: rgba(124, 58, 237, 0.1);
+            color: var(--foreign-color);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
         footer {
             background-color: var(--bg-secondary);
             padding: 2rem 0;
@@ -344,17 +523,36 @@
                 font-size: 2rem;
             }
 
-            .input-wrapper {
+            .input-row {
                 flex-direction: column;
             }
 
             .analyze-btn {
                 width: 100%;
-                justify-content: center;
             }
 
             .analysis-card {
                 padding: 1.5rem;
+            }
+
+            .input-methods {
+                justify-content: center;
+            }
+
+            .result-tabs {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .result-tab {
+                border-bottom: 1px solid var(--border-color);
+                border-radius: 0.5rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .result-tab.active {
+                border-bottom: 1px solid var(--border-color);
+                background-color: var(--bg-primary);
             }
         }
     </style>
@@ -384,29 +582,73 @@
             <section class="analysis-card">
                 <form id="analysisForm">
                     <div class="input-group">
-                        <label for="symbolInput" class="input-label">
-                            Symbole de l'action
-                        </label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="text" 
-                                id="symbolInput" 
-                                class="symbol-input" 
-                                placeholder="Ex: AAPL, TSLA, GOOGL..."
-                                maxlength="10"
-                                required
-                            >
-                            <button type="submit" class="analyze-btn" id="analyzeBtn">
-                                <i class="fas fa-search"></i>
-                                <span>Analyser</span>
-                            </button>
+                        <label class="input-label">Méthode de saisie</label>
+                        <div class="input-methods">
+                            <div class="method-tab active" data-method="manual">
+                                <i class="fas fa-keyboard"></i> Saisie manuelle
+                            </div>
+                            <div class="method-tab pea" data-method="pea">
+                                <i class="fas fa-euro-sign"></i> Actions PEA
+                            </div>
+                            <div class="method-tab foreign" data-method="foreign">
+                                <i class="fas fa-globe"></i> Actions étrangères
+                            </div>
                         </div>
-                        <div class="examples">
-                            <span class="example-tag" data-symbol="AAPL">AAPL</span>
-                            <span class="example-tag" data-symbol="TSLA">TSLA</span>
-                            <span class="example-tag" data-symbol="GOOGL">GOOGL</span>
-                            <span class="example-tag" data-symbol="MSFT">MSFT</span>
-                            <span class="example-tag" data-symbol="AMZN">AMZN</span>
+                        
+                        <div class="input-content">
+                            <div id="manualInput" class="input-method">
+                                <div class="input-row">
+                                    <input 
+                                        type="text" 
+                                        id="symbolInput" 
+                                        class="symbol-input" 
+                                        placeholder="Ex: AAPL, TSLA, SAN..."
+                                        maxlength="10"
+                                        required
+                                    >
+                                    <button type="submit" class="analyze-btn" id="analyzeBtn">
+                                        <i class="fas fa-search"></i>
+                                        <span>Analyser</span>
+                                    </button>
+                                </div>
+                                <div class="examples">
+                                    <span class="example-tag" data-symbol="AAPL">AAPL</span>
+                                    <span class="example-tag" data-symbol="TSLA">TSLA</span>
+                                    <span class="example-tag" data-symbol="SAN">SAN</span>
+                                    <span class="example-tag" data-symbol="AIR">AIR</span>
+                                    <span class="example-tag" data-symbol="MC">MC</span>
+                                </div>
+                            </div>
+                            
+                            <div id="peaInput" class="input-method" style="display: none;">
+                                <div class="input-row">
+                                    <select id="peaSelect" class="stock-select">
+                                        <option value="">Sélectionner une action PEA...</option>
+                                    </select>
+                                    <button type="submit" class="analyze-btn" id="analyzeBtnPea">
+                                        <i class="fas fa-search"></i>
+                                        <span>Analyser</span>
+                                    </button>
+                                </div>
+                                <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                                    <i class="fas fa-info-circle"></i> Ces actions sont éligibles au Plan d'Épargne en Actions (PEA)
+                                </div>
+                            </div>
+                            
+                            <div id="foreignInput" class="input-method" style="display: none;">
+                                <div class="input-row">
+                                    <select id="foreignSelect" class="stock-select">
+                                        <option value="">Sélectionner une action étrangère...</option>
+                                    </select>
+                                    <button type="submit" class="analyze-btn" id="analyzeBtnForeign">
+                                        <i class="fas fa-search"></i>
+                                        <span>Analyser</span>
+                                    </button>
+                                </div>
+                                <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                                    <i class="fas fa-info-circle"></i> Ces actions ne sont pas éligibles au PEA
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -419,8 +661,26 @@
                             <span>Analyse en cours...</span>
                         </span>
                     </div>
+                    
+                    <div class="result-tabs">
+                        <button class="result-tab active" data-tab="summary">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Résumé</span>
+                        </button>
+                        <button class="result-tab" data-tab="detailed">
+                            <i class="fas fa-list-alt"></i>
+                            <span>Analyse détaillée</span>
+                        </button>
+                    </div>
+                    
                     <div class="result-content">
-                        <div id="resultData" class="result-data"></div>
+                        <div id="summaryPanel" class="result-panel active">
+                            <div id="summaryData" class="summary-content"></div>
+                        </div>
+                        
+                        <div id="detailedPanel" class="result-panel">
+                            <div id="detailedData" class="result-data"></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -437,26 +697,200 @@
     </footer>
 
     <script>
+        // Actions européennes (éligibles PEA)
+        const peaStocks = [
+            { symbol: 'SAN', name: 'Sanofi', country: 'France' },
+            { symbol: 'AIR', name: 'Airbus', country: 'France' },
+            { symbol: 'MC', name: 'LVMH', country: 'France' },
+            { symbol: 'OR', name: "L'Oréal", country: 'France' },
+            { symbol: 'BNP', name: 'BNP Paribas', country: 'France' },
+            { symbol: 'SU', name: 'Schneider Electric', country: 'France' },
+            { symbol: 'EN', name: 'Engie', country: 'France' },
+            { symbol: 'AI', name: 'Air Liquide', country: 'France' },
+            { symbol: 'KER', name: 'Kering', country: 'France' },
+            { symbol: 'SAF', name: 'Safran', country: 'France' },
+            { symbol: 'SAP', name: 'SAP SE', country: 'Allemagne' },
+            { symbol: 'VOW3', name: 'Volkswagen', country: 'Allemagne' },
+            { symbol: 'BMW', name: 'BMW', country: 'Allemagne' },
+            { symbol: 'BAS', name: 'BASF', country: 'Allemagne' },
+            { symbol: 'SIE', name: 'Siemens', country: 'Allemagne' },
+            { symbol: 'ASML', name: 'ASML Holding', country: 'Pays-Bas' },
+            { symbol: 'PHIA', name: 'Philips', country: 'Pays-Bas' },
+            { symbol: 'UNA', name: 'Unilever', country: 'Pays-Bas' },
+            { symbol: 'NESN', name: 'Nestlé', country: 'Suisse' },
+            { symbol: 'ROG', name: 'Roche Holding', country: 'Suisse' },
+            { symbol: 'NOVN', name: 'Novartis', country: 'Suisse' },
+            { symbol: 'UBSG', name: 'UBS', country: 'Suisse' },
+            { symbol: 'ISP', name: 'Intesa Sanpaolo', country: 'Italie' },
+            { symbol: 'ENEL', name: 'Enel', country: 'Italie' },
+            { symbol: 'RDSB', name: 'Shell', country: 'Royaume-Uni' },
+            { symbol: 'HSBA', name: 'HSBC', country: 'Royaume-Uni' },
+            { symbol: 'BP', name: 'BP', country: 'Royaume-Uni' },
+            { symbol: 'GSK', name: 'GlaxoSmithKline', country: 'Royaume-Uni' },
+            { symbol: 'IBE', name: 'Iberdrola', country: 'Espagne' },
+            { symbol: 'REP', name: 'Repsol', country: 'Espagne' }
+        ];
+
+        // Actions étrangères (non éligibles PEA)
+        const foreignStocks = [
+            { symbol: 'AAPL', name: 'Apple Inc.', country: 'États-Unis' },
+            { symbol: 'AMZN', name: 'Amazon.com Inc.', country: 'États-Unis' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.', country: 'États-Unis' },
+            { symbol: 'MSFT', name: 'Microsoft Corporation', country: 'États-Unis' },
+            { symbol: 'TSLA', name: 'Tesla Inc.', country: 'États-Unis' },
+            { symbol: 'META', name: 'Meta Platforms Inc.', country: 'États-Unis' },
+            { symbol: 'NVDA', name: 'NVIDIA Corporation', country: 'États-Unis' },
+            { symbol: 'JPM', name: 'JPMorgan Chase & Co.', country: 'États-Unis' },
+            { symbol: 'JNJ', name: 'Johnson & Johnson', country: 'États-Unis' },
+            { symbol: 'V', name: 'Visa Inc.', country: 'États-Unis' },
+            { symbol: 'WMT', name: 'Walmart Inc.', country: 'États-Unis' },
+            { symbol: 'PG', name: 'Procter & Gamble Co.', country: 'États-Unis' },
+            { symbol: 'MA', name: 'Mastercard Incorporated', country: 'États-Unis' },
+            { symbol: 'UNH', name: 'UnitedHealth Group Incorporated', country: 'États-Unis' },
+            { symbol: 'HD', name: 'The Home Depot, Inc.', country: 'États-Unis' },
+            { symbol: 'BAC', name: 'Bank of America Corporation', country: 'États-Unis' },
+            { symbol: 'XOM', name: 'Exxon Mobil Corporation', country: 'États-Unis' },
+            { symbol: 'PFE', name: 'Pfizer Inc.', country: 'États-Unis' },
+            { symbol: 'CSCO', name: 'Cisco Systems, Inc.', country: 'États-Unis' },
+            { symbol: 'ADBE', name: 'Adobe Inc.', country: 'États-Unis' },
+            { symbol: 'NFLX', name: 'Netflix, Inc.', country: 'États-Unis' },
+            { symbol: 'CRM', name: 'Salesforce, Inc.', country: 'États-Unis' },
+            { symbol: 'ORCL', name: 'Oracle Corporation', country: 'États-Unis' },
+            { symbol: 'ACN', name: 'Accenture plc', country: 'Irlande' },
+            { symbol: 'NKE', name: 'NIKE, Inc.', country: 'États-Unis' },
+            { symbol: 'BABA', name: 'Alibaba Group', country: 'Chine' },
+            { symbol: 'TSM', name: 'Taiwan Semiconductor', country: 'Taïwan' },
+            { symbol: 'TM', name: 'Toyota Motor', country: 'Japon' },
+            { symbol: 'SONY', name: 'Sony', country: 'Japon' }
+        ];
+
+        // Trier les actions par ordre alphabétique du symbole
+        peaStocks.sort((a, b) => a.symbol.localeCompare(b.symbol));
+        foreignStocks.sort((a, b) => a.symbol.localeCompare(b.symbol));
+
         // Éléments du DOM
         const form = document.getElementById('analysisForm');
         const symbolInput = document.getElementById('symbolInput');
         const analyzeBtn = document.getElementById('analyzeBtn');
+        const analyzeBtnPea = document.getElementById('analyzeBtnPea');
+        const analyzeBtnForeign = document.getElementById('analyzeBtnForeign');
         const resultSection = document.getElementById('resultSection');
         const statusBadge = document.getElementById('statusBadge');
-        const resultData = document.getElementById('resultData');
+        const summaryData = document.getElementById('summaryData');
+        const detailedData = document.getElementById('detailedData');
         const exampleTags = document.querySelectorAll('.example-tag');
+        const methodTabs = document.querySelectorAll('.method-tab');
+        const manualInput = document.getElementById('manualInput');
+        const peaInput = document.getElementById('peaInput');
+        const foreignInput = document.getElementById('foreignInput');
+        const peaSelect = document.getElementById('peaSelect');
+        const foreignSelect = document.getElementById('foreignSelect');
+        const resultTabs = document.querySelectorAll('.result-tab');
+        const summaryPanel = document.getElementById('summaryPanel');
+        const detailedPanel = document.getElementById('detailedPanel');
 
         // URL du webhook
         const WEBHOOK_URL = 'https://n8n.n8n-sbf-avocats.fr/webhook-test/send_action';
+
+        // Initialiser les menus déroulants
+        function initializeDropdowns() {
+            // Menu PEA
+            peaSelect.innerHTML = '<option value="">Sélectionner une action PEA...</option>';
+            peaStocks.forEach(stock => {
+                const option = document.createElement('option');
+                option.value = stock.symbol;
+                option.textContent = `${stock.symbol}: ${stock.name} (${stock.country})`;
+                peaSelect.appendChild(option);
+            });
+
+            // Menu actions étrangères
+            foreignSelect.innerHTML = '<option value="">Sélectionner une action étrangère...</option>';
+            foreignStocks.forEach(stock => {
+                const option = document.createElement('option');
+                option.value = stock.symbol;
+                option.textContent = `${stock.symbol}: ${stock.name} (${stock.country})`;
+                foreignSelect.appendChild(option);
+            });
+        }
+
+        // Gestion des onglets de méthode de saisie
+        methodTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                methodTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const method = tab.dataset.method;
+                manualInput.style.display = 'none';
+                peaInput.style.display = 'none';
+                foreignInput.style.display = 'none';
+                
+                if (method === 'manual') {
+                    manualInput.style.display = 'block';
+                } else if (method === 'pea') {
+                    peaInput.style.display = 'block';
+                } else if (method === 'foreign') {
+                    foreignInput.style.display = 'block';
+                }
+            });
+        });
+
+        // Gestion des onglets de résultats
+        resultTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                resultTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const tabName = tab.dataset.tab;
+                summaryPanel.classList.remove('active');
+                detailedPanel.classList.remove('active');
+                
+                if (tabName === 'summary') {
+                    summaryPanel.classList.add('active');
+                } else if (tabName === 'detailed') {
+                    detailedPanel.classList.add('active');
+                }
+            });
+        });
+
+        // Gestionnaire du menu déroulant PEA
+        peaSelect.addEventListener('change', (e) => {
+            const selectedSymbol = e.target.value;
+            if (selectedSymbol) {
+                symbolInput.value = selectedSymbol;
+            }
+        });
+
+        // Gestionnaire du menu déroulant actions étrangères
+        foreignSelect.addEventListener('change', (e) => {
+            const selectedSymbol = e.target.value;
+            if (selectedSymbol) {
+                symbolInput.value = selectedSymbol;
+            }
+        });
 
         // Gestionnaire de soumission du formulaire
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const symbol = symbolInput.value.trim().toUpperCase();
+            let symbol = '';
+            let stockType = '';
+            
+            // Vérifier quelle méthode est active
+            const activeMethod = document.querySelector('.method-tab.active').dataset.method;
+            
+            if (activeMethod === 'manual') {
+                symbol = symbolInput.value.trim().toUpperCase();
+                stockType = 'manual';
+            } else if (activeMethod === 'pea') {
+                symbol = peaSelect.value;
+                stockType = 'pea';
+            } else if (activeMethod === 'foreign') {
+                symbol = foreignSelect.value;
+                stockType = 'foreign';
+            }
             
             if (!symbol) {
-                showError('Veuillez saisir un symbole d\'action');
+                showError('Veuillez sélectionner ou saisir un symbole d\'action');
                 return;
             }
 
@@ -465,7 +899,7 @@
                 return;
             }
 
-            await analyzeStock(symbol);
+            await analyzeStock(symbol, stockType);
         });
 
         // Gestionnaire des tags d'exemple
@@ -473,20 +907,19 @@
             tag.addEventListener('click', () => {
                 const symbol = tag.dataset.symbol;
                 symbolInput.value = symbol;
-                analyzeStock(symbol);
+                analyzeStock(symbol, 'manual');
             });
         });
 
         // Fonction principale d'analyse
-        async function analyzeStock(symbol) {
+        async function analyzeStock(symbol, stockType) {
             // État de chargement
             setLoadingState();
             
             try {
-                // Préparation des données pour la requête POST
+                // Préparation des données pour la requête POST - SEULEMENT LE SYMBOLE
                 const requestData = {
-                    symbol: symbol,
-                    timestamp: new Date().toISOString()
+                    symbol: symbol
                 };
 
                 // Envoi de la requête POST
@@ -508,7 +941,7 @@
                 const data = await response.json();
                 
                 // Affichage des résultats
-                displayResults(data, symbol);
+                displayResults(data, symbol, stockType);
 
             } catch (error) {
                 // Gestion des erreurs
@@ -534,57 +967,194 @@
                 <i class="fas fa-spinner fa-spin"></i>
                 <span>Analyse en cours...</span>
             `;
-            resultData.innerHTML = `
+            
+            // Vider les deux panneaux
+            summaryData.innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-chart-line"></i>
-                    <p>Recherche et analyse des données pour ${symbolInput.value.toUpperCase()}...</p>
+                    <i class="fas fa-file-alt"></i>
+                    <p>Génération du résumé en cours...</p>
                 </div>
             `;
+            detailedData.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-list-alt"></i>
+                    <p>Analyse détaillée en cours...</p>
+                </div>
+            `;
+            
+            // Désactiver tous les boutons
             analyzeBtn.disabled = true;
+            analyzeBtnPea.disabled = true;
+            analyzeBtnForeign.disabled = true;
+            
             analyzeBtn.innerHTML = `
+                <div class="loading-spinner"></div>
+                <span>Analyse...</span>
+            `;
+            analyzeBtnPea.innerHTML = `
+                <div class="loading-spinner"></div>
+                <span>Analyse...</span>
+            `;
+            analyzeBtnForeign.innerHTML = `
                 <div class="loading-spinner"></div>
                 <span>Analyse...</span>
             `;
         }
 
         // Fonction pour afficher les résultats
-        function displayResults(data, symbol) {
+        function displayResults(data, symbol, stockType) {
             statusBadge.className = 'status-badge success';
             statusBadge.innerHTML = `
                 <i class="fas fa-check-circle"></i>
                 <span>Analyse terminée</span>
             `;
             
-            // Formatage des données pour un affichage clair
-            let formattedData = '';
+            // Trouver les informations de l'action
+            let stockInfo = null;
+            let indicator = '';
             
-            if (typeof data === 'object') {
-                formattedData = JSON.stringify(data, null, 2);
-            } else if (typeof data === 'string') {
-                try {
-                    // Essayer de parser si c'est du JSON en string
-                    const parsed = JSON.parse(data);
-                    formattedData = JSON.stringify(parsed, null, 2);
-                } catch {
-                    formattedData = data;
-                }
+            if (stockType === 'pea') {
+                stockInfo = peaStocks.find(s => s.symbol === symbol);
+                indicator = '<span class="pea-indicator"><i class="fas fa-euro-sign"></i> Éligible PEA</span>';
+            } else if (stockType === 'foreign') {
+                stockInfo = foreignStocks.find(s => s.symbol === symbol);
+                indicator = '<span class="foreign-indicator"><i class="fas fa-globe"></i> Action étrangère</span>';
             } else {
-                formattedData = String(data);
+                // Vérifier dans les deux listes pour la saisie manuelle
+                stockInfo = peaStocks.find(s => s.symbol === symbol) || foreignStocks.find(s => s.symbol === symbol);
+                if (peaStocks.some(s => s.symbol === symbol)) {
+                    indicator = '<span class="pea-indicator"><i class="fas fa-euro-sign"></i> Éligible PEA</span>';
+                } else if (foreignStocks.some(s => s.symbol === symbol)) {
+                    indicator = '<span class="foreign-indicator"><i class="fas fa-globe"></i> Action étrangère</span>';
+                }
             }
             
-            resultData.innerHTML = `
-                <div style="margin-bottom: 1rem; padding: 1rem; background-color: rgba(37, 99, 235, 0.1); border-radius: 0.5rem; border-left: 4px solid var(--primary-color);">
-                    <strong style="color: var(--primary-color);">Symbole analysé:</strong> ${symbol}
-                </div>
-                <pre style="background-color: #1e293b; color: #e2e8f0; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto;"><code>${escapeHtml(formattedData)}</code></pre>
-            `;
+            const stockName = stockInfo ? stockInfo.name : 'Action inconnue';
+            const stockCountry = stockInfo ? stockInfo.country : 'Pays inconnu';
             
-            // Réinitialiser le bouton
+            // Vérifier si la réponse contient à la fois un résumé et une analyse détaillée
+            let summaryContent = '';
+            let detailedContent = '';
+            
+            if (data && typeof data === 'object') {
+                // Si la réponse est un objet avec les champs summary et detailed
+                if (data.summary && data.detailed) {
+                    summaryContent = formatSummary(data.summary, symbol, stockName, stockCountry, indicator);
+                    detailedContent = formatDetailed(data.detailed, symbol, stockName, stockCountry, indicator);
+                } else {
+                    // Si la réponse est un objet mais sans les champs attendus, on l'affiche dans le détail
+                    detailedContent = formatDetailed(JSON.stringify(data, null, 2), symbol, stockName, stockCountry, indicator);
+                    summaryContent = generateSummaryFromDetailed(data, symbol, stockName, stockCountry, indicator);
+                }
+            } else {
+                // Si la réponse est du texte brut, on l'affiche dans le détail
+                detailedContent = formatDetailed(data, symbol, stockName, stockCountry, indicator);
+                summaryContent = generateSummaryFromDetailed(data, symbol, stockName, stockCountry, indicator);
+            }
+            
+            // Afficher les contenus
+            summaryData.innerHTML = summaryContent;
+            detailedData.innerHTML = detailedContent;
+            
+            // Réinitialiser les boutons
             analyzeBtn.disabled = false;
+            analyzeBtnPea.disabled = false;
+            analyzeBtnForeign.disabled = false;
             analyzeBtn.innerHTML = `
                 <i class="fas fa-search"></i>
                 <span>Analyser</span>
             `;
+            analyzeBtnPea.innerHTML = `
+                <i class="fas fa-search"></i>
+                <span>Analyser</span>
+            `;
+            analyzeBtnForeign.innerHTML = `
+                <i class="fas fa-search"></i>
+                <span>Analyser</span>
+            `;
+        }
+
+        // Fonction pour formater le résumé
+        function formatSummary(summary, symbol, stockName, stockCountry, indicator) {
+            return `
+                <div style="margin-bottom: 1rem; padding: 1rem; background-color: rgba(37, 99, 235, 0.1); border-radius: 0.5rem; border-left: 4px solid var(--primary-color);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <strong style="color: var(--primary-color);">Symbole analysé:</strong> ${symbol} - ${stockName}
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">Pays: ${stockCountry}</div>
+                        </div>
+                        ${indicator}
+                    </div>
+                </div>
+                <div class="summary-content">
+                    ${summary}
+                </div>
+            `;
+        }
+
+        // Fonction pour formater l'analyse détaillée
+        function formatDetailed(detailed, symbol, stockName, stockCountry, indicator) {
+            return `
+                <div style="margin-bottom: 1rem; padding: 1rem; background-color: rgba(37, 99, 235, 0.1); border-radius: 0.5rem; border-left: 4px solid var(--primary-color);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <strong style="color: var(--primary-color);">Symbole analysé:</strong> ${symbol} - ${stockName}
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">Pays: ${stockCountry}</div>
+                        </div>
+                        ${indicator}
+                    </div>
+                </div>
+                <pre style="background-color: #1e293b; color: #e2e8f0; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto;"><code>${escapeHtml(detailed)}</code></pre>
+            `;
+        }
+
+        // Fonction pour générer un résumé à partir de l'analyse détaillée (si le webhook ne renvoie pas de résumé)
+        function generateSummaryFromDetailed(data, symbol, stockName, stockCountry, indicator) {
+            // Extraire les informations clés de l'analyse détaillée
+            let summary = '<h3>Résumé de l\'analyse</h3>';
+            
+            if (typeof data === 'string') {
+                // Si c'est du texte, on essaie d'extraire les premières lignes
+                const lines = data.split('\n').filter(line => line.trim());
+                const firstLines = lines.slice(0, 5).join('\n');
+                
+                summary += `
+                    <div class="summary-highlight">
+                        <strong>Points clés:</strong>
+                        <p>${firstLines}</p>
+                    </div>
+                `;
+            } else if (typeof data === 'object') {
+                // Si c'est un objet, on essaie d'extraire les champs importants
+                const importantFields = ['recommendation', 'rating', 'price', 'target', 'outlook', 'trend'];
+                const foundFields = [];
+                
+                for (const field of importantFields) {
+                    if (data[field] !== undefined) {
+                        foundFields.push(`<li><strong>${field}:</strong> ${data[field]}</li>`);
+                    }
+                }
+                
+                if (foundFields.length > 0) {
+                    summary += `
+                        <div class="summary-highlight">
+                            <strong>Indicateurs clés:</strong>
+                            <ul>
+                                ${foundFields.join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+            }
+            
+            summary += `
+                <p><strong>Entreprise:</strong> ${stockName} (${symbol})</p>
+                <p><strong>Pays:</strong> ${stockCountry}</p>
+                <p><strong>Statut PEA:</strong> ${indicator.includes('Éligible PEA') ? 'Éligible' : 'Non éligible'}</p>
+                <p><em>Ce résumé a été généré automatiquement à partir de l'analyse détaillée.</em></p>
+            `;
+            
+            return summary;
         }
 
         // Fonction pour afficher les erreurs
@@ -595,7 +1165,8 @@
                 <span>Erreur</span>
             `;
             
-            resultData.innerHTML = `
+            // Afficher l'erreur dans les deux panneaux
+            const errorMessage = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-triangle error-icon"></i>
                     <div class="error-details">
@@ -605,19 +1176,36 @@
                 </div>
             `;
             
+            summaryData.innerHTML = errorMessage;
+            detailedData.innerHTML = errorMessage;
+            
             resultSection.classList.add('show');
             
-            // Réinitialiser le bouton
+            // Réinitialiser les boutons
             analyzeBtn.disabled = false;
+            analyzeBtnPea.disabled = false;
+            analyzeBtnForeign.disabled = false;
             analyzeBtn.innerHTML = `
                 <i class="fas fa-search"></i>
                 <span>Analyser</span>
             `;
+            analyzeBtnPea.innerHTML = `
+                <i class="fas fa-search"></i>
+                <span>Analyser</span>
+            `;
+            analyzeBtnForeign.innerHTML = `
+                <i class="fas fa-search"></i>
+                <span>Analyser</span>
+            `;
             
-            // Ajouter une classe d'erreur à l'input
+            // Ajouter une classe d'erreur aux inputs
             symbolInput.classList.add('error');
+            peaSelect.classList.add('error');
+            foreignSelect.classList.add('error');
             setTimeout(() => {
                 symbolInput.classList.remove('error');
+                peaSelect.classList.remove('error');
+                foreignSelect.classList.remove('error');
             }, 3000);
         }
 
@@ -637,7 +1225,24 @@
         symbolInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.toUpperCase();
             e.target.classList.remove('error');
+            peaSelect.classList.remove('error');
+            foreignSelect.classList.remove('error');
         });
+
+        peaSelect.addEventListener('change', (e) => {
+            e.target.classList.remove('error');
+            symbolInput.classList.remove('error');
+            foreignSelect.classList.remove('error');
+        });
+
+        foreignSelect.addEventListener('change', (e) => {
+            e.target.classList.remove('error');
+            symbolInput.classList.remove('error');
+            peaSelect.classList.remove('error');
+        });
+
+        // Initialisation
+        initializeDropdowns();
 
         // Focus automatique sur l'input au chargement
         window.addEventListener('load', () => {
