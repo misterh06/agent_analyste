@@ -237,10 +237,12 @@
         .result-header {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            justify-content: space-between;
             margin-bottom: 1rem;
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .result-title {
@@ -272,6 +274,29 @@
         .status-badge.loading {
             background-color: rgba(37, 99, 235, 0.1);
             color: var(--primary-color);
+        }
+
+        .expand-btn {
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .expand-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .expand-btn i {
+            font-size: 1rem;
         }
 
         .result-tabs {
@@ -309,29 +334,31 @@
             background-color: var(--bg-primary);
             border-radius: 0.75rem;
             padding: 1.5rem;
-            min-height: 300px;
-            max-height: 600px;
+            min-height: 400px;
+            max-height: 80vh;
             overflow-y: auto;
             position: relative;
+            transition: max-height 0.3s ease;
         }
 
         /* Personnaliser la barre de défilement */
         .result-content::-webkit-scrollbar {
-            width: 8px;
+            width: 10px;
         }
 
         .result-content::-webkit-scrollbar-track {
             background: var(--bg-primary);
-            border-radius: 4px;
+            border-radius: 5px;
         }
 
         .result-content::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+            background: var(--text-secondary);
+            border-radius: 5px;
+            min-height: 50px;
         }
 
         .result-content::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
+            background: var(--primary-color);
         }
 
         .result-panel {
@@ -582,7 +609,11 @@
             }
 
             .result-content {
-                max-height: 400px;
+                max-height: 60vh;
+            }
+
+            .expand-btn span {
+                display: none;
             }
         }
     </style>
@@ -686,10 +717,16 @@
                 <div id="resultSection" class="result-section">
                     <div class="result-header">
                         <h2 class="result-title">Résultats de l'analyse</h2>
-                        <span id="statusBadge" class="status-badge loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <span>Analyse en cours...</span>
-                        </span>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span id="statusBadge" class="status-badge loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <span>Analyse en cours...</span>
+                            </span>
+                            <button id="expandBtn" class="expand-btn" onclick="toggleExpand()" style="display: none;">
+                                <i class="fas fa-expand"></i>
+                                <span>Agrandir</span>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="result-tabs">
@@ -806,6 +843,7 @@
         const analyzeBtnForeign = document.getElementById('analyzeBtnForeign');
         const resultSection = document.getElementById('resultSection');
         const statusBadge = document.getElementById('statusBadge');
+        const expandBtn = document.getElementById('expandBtn');
         const summaryData = document.getElementById('summaryData');
         const detailedData = document.getElementById('detailedData');
         const exampleTags = document.querySelectorAll('.example-tag');
@@ -946,22 +984,52 @@
             });
         });
 
+        // Fonction pour basculer l'affichage plein écran
+        function toggleExpand() {
+            const resultContent = document.querySelector('.result-content');
+            const expandBtn = document.getElementById('expandBtn');
+            
+            if (resultContent.classList.contains('expanded')) {
+                resultContent.classList.remove('expanded');
+                resultContent.style.maxHeight = '80vh';
+                expandBtn.innerHTML = `
+                    <i class="fas fa-expand"></i>
+                    <span>Agrandir</span>
+                `;
+            } else {
+                resultContent.classList.add('expanded');
+                resultContent.style.maxHeight = 'none';
+                expandBtn.innerHTML = `
+                    <i class="fas fa-compress"></i>
+                    <span>Réduire</span>
+                `;
+            }
+        }
+
         // Fonction pour ajuster la hauteur du contenu
         function adjustContentHeight() {
             const resultContent = document.querySelector('.result-content');
             const summaryPanel = document.getElementById('summaryPanel');
             const detailedPanel = document.getElementById('detailedPanel');
             
+            // Si le contenu est agrandi, ne pas ajuster la hauteur
+            if (resultContent.classList.contains('expanded')) {
+                return;
+            }
+            
             // Réinitialiser la hauteur
-            resultContent.style.maxHeight = 'none';
+            resultContent.style.maxHeight = '80vh';
             
             // Calculer la hauteur nécessaire
             const activePanel = summaryPanel.classList.contains('active') ? summaryPanel : detailedPanel;
             const contentHeight = activePanel.scrollHeight;
             
-            // Définir une hauteur maximale raisonnable
-            const maxHeight = Math.min(contentHeight + 50, window.innerHeight * 0.7);
-            resultContent.style.maxHeight = maxHeight + 'px';
+            // Si le contenu est plus grand que 80vh, on garde 80vh, sinon on ajuste
+            if (contentHeight > window.innerHeight * 0.8) {
+                resultContent.style.maxHeight = '80vh';
+            } else {
+                resultContent.style.maxHeight = (contentHeight + 50) + 'px';
+            }
         }
 
         // Fonction principale d'analyse
@@ -1021,6 +1089,9 @@
                 <span>Analyse en cours...</span>
             `;
             
+            // Cacher le bouton d'agrandissement pendant le chargement
+            expandBtn.style.display = 'none';
+            
             // Vider les deux panneaux
             summaryData.innerHTML = `
                 <div class="empty-state">
@@ -1061,6 +1132,9 @@
                 <i class="fas fa-check-circle"></i>
                 <span>Analyse terminée</span>
             `;
+            
+            // Afficher le bouton d'agrandissement
+            expandBtn.style.display = 'flex';
             
             // Extraire les données du tableau
             let processedData = {};
@@ -1161,42 +1235,86 @@
         }
 
         // Fonction pour formater le markdown simple
-        function formatMarkdown(text) {
-            if (!text) return '';
-            
-            // Convertir les **gras** en <strong>
-            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // Convertir les sauts de ligne en <br>
-            text = text.replace(/\n/g, '<br>');
-            
-            // Convertir les listes numérotées
-            text = text.replace(/<br>(\d+)\.\s+/g, '</li><li><strong>$1.</strong> ');
-            
-            // Convertir les listes à puces
-            text = text.replace(/<br>\*\s+/g, '</li><li>');
-            
-            // Gérer le début des listes
-            text = text.replace(/^<br>(\d+)\.\s+/, '<ol><li><strong>$1.</strong> ');
-            text = text.replace(/^<br>\*\s+/, '<ul><li>');
-            
-            // Gérer la fin des listes
-            text = text.replace(/<li>.*$/, '</li></ol></ul>');
-            
-            // Nettoyer les balises restantes
-            text = text.replace(/<\/li><\/ol><\/ul>/g, '</li></ol>');
-            text = text.replace(/<\/li><\/ul><\/ol>/g, '</li></ul>');
-            
-            // Ajouter des balises pour les titres
-            text = text.replace(/<br>###\s+(.*?)<br>/g, '<h3>$1</h3>');
-            text = text.replace(/<br>####\s+(.*?)<br>/g, '<h4>$1</h4>');
-            
-            // Ajouter des paragraphes pour les sections de texte
-            text = text.replace(/<br><br>/g, '</p><p>');
-            text = '<p>' + text + '</p>';
-            
-            return text;
+function formatMarkdown(text) {
+    if (!text) return '';
+    
+    // Convertir les **gras** en <strong>
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convertir les sauts de ligne en <br>
+    text = text.replace(/\n/g, '<br>');
+    
+    // Gérer les sections de recommandations spécifiquement
+    text = text.replace(/<br>\*\*Recommandations([^*]*)\*\*<br>/gi, (match, type) => {
+        return `<h3>Recommandations${type}</h3>`;
+    });
+    
+    // Gérer les sous-titres comme "Court terme :"
+    text = text.replace(/<br>\*\*([^*]+):\*\*<br>/gi, '<h4>$1:</h4>');
+    
+    // Gérer les listes numérotées avec éléments détaillés
+    text = text.replace(/<br>(\d+)\.\s+\*\*(.*?)\*\*<br>/gi, (match, num, title) => {
+        return `<h5>${num}. ${title}</h5>`;
+    });
+    
+    // Gérer les éléments de liste avec sous-éléments (comme Action, Prix, etc.)
+    text = text.replace(/<br>\*{1,2}\s+\*\*(.*?)\*\*:\s*(.*?)(?=<br>\*{1,2}\s+\*\*|$)/gi, (match, title, content) => {
+        // Nettoyer le contenu
+        content = content.replace(/<br>/g, ' ');
+        return `<li><strong>${title}:</strong> ${content}</li>`;
+    });
+    
+    // Gérer les éléments de liste simples
+    text = text.replace(/<br>\*{1,2}\s+(.*?)(?=<br>\*{1,2}\s+|$)/gi, '<li>$1</li>');
+    
+    // Gérer les listes numérotées simples
+    text = text.replace(/<br>(\d+)\.\s+(.*?)(?=<br>\d+\.|$)/gi, '<li><strong>$1.</strong> $2</li>');
+    
+    // Envelopper les listes dans des balises ul/ol
+    text = text.replace(/(<h5>.*?<\/h5>)(.*?)(?=<h5>|<h[34]|$)/gi, (match, title, items) => {
+        if (items.trim()) {
+            return `${title}<ol>${items}</ol>`;
         }
+        return title;
+    });
+    
+    // Envelopper les autres listes
+    text = text.replace(/(<li>.*?)(?=<h[345]|$)/gi, (match) => {
+        if (match.includes('<strong>1.</strong>') || match.includes('<strong>2.</strong>')) {
+            return `<ol>${match}</ol>`;
+        } else {
+            return `<ul>${match}</ul>`;
+        }
+    });
+    
+    // Nettoyer les balises restantes
+    text = text.replace(/<\/ol><ol>/g, '');
+    text = text.replace(/<\/ul><ul>/g, '');
+    text = text.replace(/<\/ol><ul>/g, '</ol><ul>');
+    text = text.replace(/<\/ul><ol>/g, '</ul><ol>');
+    
+    // Ajouter des balises pour les titres
+    text = text.replace(/<br>###\s+(.*?)<br>/g, '<h3>$1</h3>');
+    text = text.replace(/<br>####\s+(.*?)<br>/g, '<h4>$1</h4>');
+    text = text.replace(/<br>\*\*(.*?)\*\*<br>/g, '<h4>$1</h4>');
+    
+    // Ajouter des paragraphes pour les sections de texte
+    text = text.replace(/<br><br>/g, '</p><p>');
+    
+    // Enlever les <br> restants dans les paragraphes
+    text = text.replace(/<p><br>/g, '<p>');
+    text = text.replace(/<br><\/p>/g, '</p>');
+    
+    // S'assurer que le texte commence par un paragraphe
+    if (!text.startsWith('<')) {
+        text = '<p>' + text;
+    }
+    if (!text.endsWith('>')) {
+        text = text + '</p>';
+    }
+    
+    return text;
+}
 
         // Fonction pour afficher les erreurs
         function showError(message) {
@@ -1205,6 +1323,9 @@
                 <i class="fas fa-exclamation-circle"></i>
                 <span>Erreur</span>
             `;
+            
+            // Cacher le bouton d'agrandissement
+            expandBtn.style.display = 'none';
             
             // Afficher l'erreur dans les deux panneaux
             const errorMessage = `
